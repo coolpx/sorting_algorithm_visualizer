@@ -1,0 +1,17 @@
+{
+    "ClassName": "Folder",
+    "Children": [
+        {
+            "ClassName": "BindableEvent",
+            "Name": "setMainMenu"
+        },
+        {
+            "ClassName": "BindableEvent",
+            "Name": "setAlgorithmMenu"
+        },
+        {
+            "ClassName": "BindableEvent",
+            "Name": "playAlgorithm"
+        }
+    ]
+}
