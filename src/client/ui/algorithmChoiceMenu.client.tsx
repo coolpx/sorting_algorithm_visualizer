@@ -14,11 +14,13 @@ interface AlgorithmChoiceMenuState {
 // constants
 const algorithms: {
     name: string;
-}[] = [
-    {
-        name: 'Bubble'
-    }
-];
+}[] = [];
+
+for (const [_, algorithm] of pairs(ReplicatedStorage.algorithms.GetChildren())) {
+    algorithms.push({
+        name: algorithm.Name
+    });
+}
 
 // component
 class AlgorithmChoiceMenu extends Roact.Component<{}, AlgorithmChoiceMenuState> {
