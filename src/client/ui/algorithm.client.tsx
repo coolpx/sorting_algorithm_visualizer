@@ -79,6 +79,16 @@ class AlgorithmMenu extends Roact.Component<{}, AlgorithmMenuState> {
                     Bottom: new UDim(0.1, 0)
                 }}
             >
+                <Button
+                    Text={'&lt;'}
+                    AutoResize={true}
+                    BackgroundInvisible={true}
+                    Size={UDim2.fromScale(1, 0.15)}
+                    OnClick={() => {
+                        this.setState({ enabled: false });
+                        ReplicatedStorage.connections.setAlgorithmMenu.Fire(true);
+                    }}
+                />
                 <Text
                     Text={this.state.algorithmName}
                     Size={UDim2.fromScale(1, 0.15)}
@@ -132,7 +142,7 @@ class AlgorithmMenu extends Roact.Component<{}, AlgorithmMenuState> {
                         Size={UDim2.fromScale(0.5, 1)}
                         AutoResize={true}
                         OnClick={() => {
-                            while (!this.state.done) {
+                            while (!this.state.done && this.state.enabled) {
                                 const iterationResult = this.state.algorithm.runIteration();
                                 this.setState({
                                     entries: this.state.algorithm.array,
