@@ -96,6 +96,7 @@ class AlgorithmMenu extends Roact.Component<{}, AlgorithmMenuState> {
                     BackgroundInvisible={true}
                     Size={UDim2.fromScale(1, 0.15)}
                     OnClick={() => {
+                        this.stopRunThread();
                         this.setState({ enabled: false });
                         ReplicatedStorage.connections.setAlgorithmMenu.Fire(true);
                     }}
