@@ -16,6 +16,7 @@ interface AlgorithmMenuState {
     entries: number[];
     highlight: number[];
     done: boolean;
+    runThread?: thread;
 }
 
 // component
@@ -26,7 +27,8 @@ class AlgorithmMenu extends Roact.Component<{}, AlgorithmMenuState> {
         algorithm: new SortingAlgorithm(1),
         entries: [] as number[],
         highlight: [] as number[],
-        done: false
+        done: false,
+        runThread: undefined
     };
 
     async init() {
@@ -35,6 +37,15 @@ class AlgorithmMenu extends Roact.Component<{}, AlgorithmMenuState> {
             enabled: false,
             entries: []
         });
+    }
+
+    stopRunThread(): boolean {
+        if (this.state.runThread) {
+            coroutine.close(this.state.runThread);
+            this.setState({ runThread: Roact.None });
+            return true;
+        }
+        return false;
     }
 
     render() {
@@ -142,15 +153,23 @@ class AlgorithmMenu extends Roact.Component<{}, AlgorithmMenuState> {
                         Size={UDim2.fromScale(0.5, 1)}
                         AutoResize={true}
                         OnClick={() => {
-                            while (!this.state.done && this.state.enabled) {
-                                const iterationResult = this.state.algorithm.runIteration();
-                                this.setState({
-                                    entries: this.state.algorithm.array,
-                                    highlight: iterationResult.highlight,
-                                    done: iterationResult.done
-                                });
-                                RunService.RenderStepped.Wait();
-                            }
+                            if (this.stopRunThread()) return;
+
+                            const thread = coroutine.create(() => {
+                                while (!this.state.done && this.state.enabled) {
+                                    const iterationResult = this.state.algorithm.runIteration();
+                                    this.setState({
+                                        entries: this.state.algorithm.array,
+                                        highlight: iterationResult.highlight,
+                                        done: iterationResult.done
+                                    });
+                                    RunService.RenderStepped.Wait();
+                                }
+                            });
+
+                            coroutine.resume(thread);
+
+                            this.setState({ runThread: thread });
                         }}
                     />
                     <Button
@@ -158,6 +177,9 @@ class AlgorithmMenu extends Roact.Component<{}, AlgorithmMenuState> {
                         Size={UDim2.fromScale(0.5, 1)}
                         AutoResize={true}
                         OnClick={() => {
+                            // stop run thread
+                            this.stopRunThread();
+
                             // find algorithm
                             const algorithmModuleScript =
                                 ReplicatedStorage.algorithms.FindFirstChild(
